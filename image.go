@@ -181,6 +181,8 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 	}
 
 	path, err := downloadImage(cfg, image)
+	defer os.Remove(path)
+
 	if err != nil {
 		return "", err
 	}
@@ -198,23 +200,33 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 
 	defer tempfile.Close()
 	temppath := tempfile.Name()
+	defer os.Remove(temppath)
 
 	topFile, err := createTemporaryFileWithContents(topCaption)
 	if err != nil {
 		return "", err
 	}
 
+	defer os.Remove(topFile)
+
 	bottomFile, err := createTemporaryFileWithContents(bottomCaption)
+	if err != nil {
+		return "", err
+	}
+
+	defer os.Remove(bottomFile)
+
+	pwd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
 	cmd := exec.Command("convert", path,
 		"-background", "transparent",
-		"-font", "Helvetica",
+		"-font", fmt.Sprintf("%s/impact.ttf", pwd),
 		"-fill", "white",
 		"-stroke", "black",
-		"-strokewidth", "4",
+		"-strokewidth", "6",
 		"-size", fmt.Sprintf("%dx%d", w, h/4),
 		"-gravity", "center",
 		fmt.Sprintf("caption:@%s", topFile),
