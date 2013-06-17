@@ -1,0 +1,5 @@
+{
+	"Endpoint" : "nodebooru url, like http://nodebooru.example.com"
+	"UploaderEmail" : "whatever@gmail.com", 
+	"BindAddr" : "localhost:16002"
+}
