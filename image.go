@@ -239,8 +239,9 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 		"-font", fmt.Sprintf("%s/impact.ttf", pwd),
 		"-fill", "white",
 		"-stroke", "black",
-		"-strokewidth", "6",
-		"-size", fmt.Sprintf("%dx%d", w, h/4),
+		"-strokewidth", "3",
+		"-size", fmt.Sprintf("%dx%d", w-40, h/4),
+		"+pointsize",
 		"-gravity", "center",
 		fmt.Sprintf("caption:@%s", topFile),
 		"-geometry", "+10+10",
@@ -250,7 +251,8 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 		fmt.Sprintf("caption:@%s", bottomFile),
 		"-gravity", "south",
 		"-geometry", "+10+10",
-		"-composite", temppath)
+		"-composite",
+		"+repage", temppath)
 
 	log.Print(cmd)
 	out, err := cmd.CombinedOutput()
