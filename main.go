@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 )
 
 func handleRequest(cfg Config) http.Handler {
@@ -20,7 +21,7 @@ func handleRequest(cfg Config) http.Handler {
 			return
 		}
 
-		_, err := CreateMacro(cfg, r.FormValue("image"), r.FormValue("top"), r.FormValue("bottom"))
+		_, err := CreateMacro(cfg, r.FormValue("image"), strings.ToUpper(r.FormValue("top")), strings.ToUpper(r.FormValue("bottom")))
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(502)
