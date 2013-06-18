@@ -21,13 +21,14 @@ func handleRequest(cfg Config) http.Handler {
 			return
 		}
 
-		_, err := CreateMacro(cfg, r.FormValue("image"), strings.ToUpper(r.FormValue("top")), strings.ToUpper(r.FormValue("bottom")))
+		uploadedId, err := CreateMacro(cfg, r.FormValue("image"), strings.ToUpper(r.FormValue("top")), strings.ToUpper(r.FormValue("bottom")))
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(502)
 			return
 		}
 
+		w.Write([]byte(uploadedId))
 		w.WriteHeader(200)
 	})
 }

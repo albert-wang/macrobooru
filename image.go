@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -171,7 +172,19 @@ func uploadToHost(cfg Config, path string) (string, error) {
 	io.Copy(&responseBuffer, res.Body)
 	res.Body.Close()
 
-	return string(responseBuffer.Bytes()), nil
+	response := []models.Image{}
+	err = json.Unmarshal(responseBuffer.Bytes(), &response)
+	if err != nil {
+		//Uploaded, but could not decode response? 
+		return "", err
+	}
+
+	if len(response) != 1 {
+		return "", fmt.Errorf("Uploaded 1 image, got %d response images back?", len(response))
+	}
+
+	log.Printf("Upload result: %s", response[0].Pid.String())
+	return response[0].Pid.String(), nil
 }
 
 func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption string) (string, error) {
@@ -252,6 +265,5 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 		return "", nil
 	}
 
-	log.Print(resp)
-	return "", nil
+	return resp, nil
 }
