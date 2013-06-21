@@ -235,12 +235,13 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 	}
 
 	strokeWidth := 3
-	if w < 600 {
-		strokeWidth = 1
-	}
 
 	if w < 1200 {
 		strokeWidth = 2
+	}
+
+	if w < 600 {
+		strokeWidth = 1
 	}
 
 	var cmd *exec.Cmd
