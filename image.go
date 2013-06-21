@@ -89,7 +89,7 @@ func downloadImage(cfg Config, image *models.Image) (string, error) {
 }
 
 func imageSize(path string) (int, int, error) {
-	cmd := exec.Command("identify", "-format", "%[fx:w] %[fx:h]", path)
+	cmd := exec.Command("identify", "-format", "%[fx:w] %[fx:h] ", path)
 
 	output, err := cmd.Output()
 	if err != nil {
@@ -234,25 +234,63 @@ func CreateMacro(cfg Config, imageID string, topCaption string, bottomCaption st
 		return "", err
 	}
 
-	cmd := exec.Command("convert", path,
-		"-background", "transparent",
-		"-font", fmt.Sprintf("%s/impact.ttf", pwd),
-		"-fill", "white",
-		"-stroke", "black",
-		"-strokewidth", "3",
-		"-size", fmt.Sprintf("%dx%d", w-40, h/4),
-		"+pointsize",
-		"-gravity", "center",
-		fmt.Sprintf("caption:@%s", topFile),
-		"-geometry", "+10+10",
-		"-gravity", "north",
-		"-composite",
-		"-gravity", "center",
-		fmt.Sprintf("caption:@%s", bottomFile),
-		"-gravity", "south",
-		"-geometry", "+10+10",
-		"-composite",
-		"+repage", temppath)
+	strokeWidth := 3
+	if w < 600 {
+		strokeWidth = 1
+	}
+
+	if w < 1200 {
+		strokeWidth = 2
+	}
+
+	var cmd *exec.Cmd
+
+	if image.Mime == "image/gif" {
+		cmd = exec.Command("convert", path,
+			"null: ", "(",
+			"-size", fmt.Sprintf("%dx%d", w, h),
+			"canvas:transparent",
+			"-background", "transparent",
+			"-font", fmt.Sprintf("%s/impact.ttf", pwd),
+			"-fill", "white",
+			"-stroke", "black",
+			"-strokewidth", fmt.Sprintf("%d", strokeWidth),
+			"-size", fmt.Sprintf("%dx%d", w-40, h/4),
+			"+pointsize",
+			"-gravity", "center",
+			fmt.Sprintf("caption:@%s", topFile),
+			"-geometry", "+10+10",
+			"-gravity", "north",
+			"-composite",
+			"-gravity", "center",
+			fmt.Sprintf("caption:@%s", bottomFile),
+			"-gravity", "south",
+			"-geometry", "+10+10",
+			"-composite",
+			")",
+			"-layers", "Composite",
+			temppath)
+	} else {
+		cmd = exec.Command("convert", path,
+			"-background", "transparent",
+			"-font", fmt.Sprintf("%s/impact.ttf", pwd),
+			"-fill", "white",
+			"-stroke", "black",
+			"-strokewidth", "3",
+			"-size", fmt.Sprintf("%dx%d", w-40, h/4),
+			"+pointsize",
+			"-gravity", "center",
+			fmt.Sprintf("caption:@%s", topFile),
+			"-geometry", "+10+10",
+			"-gravity", "north",
+			"-composite",
+			"-gravity", "center",
+			fmt.Sprintf("caption:@%s", bottomFile),
+			"-gravity", "south",
+			"-geometry", "+10+10",
+			"-composite",
+			"+repage", temppath)
+	}
 
 	log.Print(cmd)
 	out, err := cmd.CombinedOutput()
